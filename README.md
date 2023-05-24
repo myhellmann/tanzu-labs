@@ -1,1 +1,1 @@
-# tanzu-repo
+# tanzu-labs
