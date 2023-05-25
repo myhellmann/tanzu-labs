@@ -1,0 +1,22 @@
+apiVersion: run.tanzu.vmware.com/v1alpha2
+kind: TanzuKubernetesCluster
+metadata:
+  name: shared-services 
+  namespace: nwlabs
+spec:
+  topology:
+    controlPlane:
+      replicas: 1
+      vmClass: best-effort-medium
+      storageClass: tanzu-workload-nfs3 
+      tkr:  
+        reference:
+          name: v1.23.8---vmware.3-tkg.1
+    nodePools:
+    - name: worker-nodepool-a1
+      replicas: 1
+      vmClass: best-effort-medium
+      storageClass: tanzu-workload-nfs3
+      tkr:  
+        reference:
+          name: v1.23.8---vmware.3-tkg.1

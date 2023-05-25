@@ -1,0 +1,16 @@
+namespace: tanzu-system-service-discovery
+deployment:
+  args:
+    - --registry=txt
+    - --txt-prefix=external-dns-
+    - --txt-owner-id=tanzu
+    - --provider=rfc2136
+    - --rfc2136-host=10.22.10.21
+    - --rfc2136-port=53
+    - --rfc2136-zone=tkg.myhellmann.home
+    - --rfc2136-insecure
+    - --rfc2136-tsig-axfr
+    - --source=service
+    - --source=contour-httpproxy
+    - --source=ingress
+    - --domain-filter=tkg.myhellmann.home

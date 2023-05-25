@@ -1,0 +1,96 @@
+# After Cluster creation first steps
+tanzu context create --kubeconfig /home/nightwave/.kube/config --kubecontext <context> --name <context> 
+
+###  Create Default Storage Class ###
+# Voraussetzung für Prometheus Server, Alert Manager, Grafana, Harbor
+kubectl patch storageclass tanzu-workload-nfs3 -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}' 
+
+### PSP installieren ###
+kubectl apply -f psp_security_policy_privileged.yaml
+
+### Package Repo Hinzufügen (Version beachten) ###
+kubectl apply -f packagerepo.yaml
+tanzu package repository list -n tanzu-package-repo-global -n tkg-system
+
+### AKO Ingress Controller ###
+kubectl create namespace avi-system --dry-run=client -o yaml > avi-system.yaml
+helm install ako/ako --generate-name --version 1.9.3 -f ako-values.yaml --set ControllerSettings.controllerHost=<AVI-CONTROLLER-IP> --set avicredentials.username=<USERNAME> --set avicredentials.password=<PASSWORD>> --namespace=avi-system
+
+
+################################
+# Deploy Packages from Tanzu CLI
+### Cert-Manager ###
+kubectl create namespace cert-manager --dry-run=client -o yaml > ns-cert-manager.yaml
+tanzu package available list cert-manager.tanzu.vmware.com
+
+tanzu package install cert-manager \
+--package-name cert-manager.tanzu.vmware.com \
+--version <VERSION>
+tanzu package install cert-manager --package cert-manager.tanzu.vmware.com --version 1.7.2+vmware.1-tkg.1 --namespace tkg-system
+
+
+### External-DNS ##
+kubectl create namespace tanzu-system-service-discovery --dry-run=client -o yaml > ns-external-dns.yaml
+tanzu package available list external-dns.tanzu.vmware.com
+
+tanzu package install external-dns \
+--package-name prometheus.tanzu.vmware.com \
+--version <VERSION> \
+--values-file values-external-dns.yaml
+tanzu package install external-dns --package external-dns.tanzu.vmware.com --version 0.12.2+vmware.4-tkg.1 --values-file ./external-dns-data-values.yaml --namespace tanzu-system-service-discovery
+
+
+### Contour ###
+kubectl create namespace tanzu-system-ingress --dry-run=client -o yaml > ns-contour.yaml
+tanzu package available list contour.tanzu.vmware.com
+
+tanzu package install contour \
+--package-name contour.tanzu.vmware.com \
+--version <VERSION> \
+--values-file contour-data-values.yaml
+tanzu package install contour --package contour.tanzu.vmware.com --version 1.22.3+vmware.1-tkg.1 --values-file ./contour-data-values.yaml --namespace tanzu-system-ingress
+
+
+### Prometheus ###
+k create namespace tanzu-system-monitoring --dry-run=client -o yaml > ns-prometheus.yaml
+tanzu package available list prometheus.tanzu.vmware.com
+
+image_url=$(kubectl -n tkg-system get packages prometheus.tanzu.vmware.com.2.37.0+vmware.1-tkg.1 -o jsonpath='{.spec.template.spec.fetch[0].imgpkgBundle.image}')
+imgpkg pull -b $image_url -o /tmp/prometheus-package-2.37.0+vmware.1-tkg.1
+cp /tmp/prometheus-package-2.37.0+vmware.1-tkg.1/config/values.yaml prometheus-data-values.yaml
+
+# Edit Values File: (minimum)
+ingress:
+  enabled: true
+  virtual_host_fqdn: "prometheus.<your-domain>"
+
+tanzu package install prometheus \
+--package-name prometheus.tanzu.vmware.com \
+--version <VERSION> \
+--values-file values-prometheus.yaml
+tanzu package install prometheus --package prometheus.tanzu.vmware.com --version 2.37.0+vmware.1-tkg.1 --values-file ./prometheus-data-values.yaml --namespace tanzu-system-monitoring
+
+
+### Grafana ###
+kubectl create namespace tanzu-system-dashboards --dry-run=client -o yaml > ns-grafana.yaml
+tanzu package available list grafana.tanzu.vmware.com
+
+image_url=$(kubectl -n tkg-system get packages grafana.tanzu.vmware.com.7.5.16+vmware.1-tkg.1 -o jsonpath='{.spec.template.spec.fetch[0].imgpkgBundle.image}')
+imgpkg pull -b $image_url -o /tmp/grafana-package-7.5.16+vmware.1-tkg.1
+cp /tmp/grafana-package-7.5.16+vmware.1-tkg.1/config/values.yaml grafana-data-values.yaml
+
+# Edit Values File: (minimum)
+grafana
+  service
+    type: LoadBalancer # Can change from LoadBalancer to NodePort if necessary
+  secret
+    # Password must be in Base64 encoded format --> echo <PASSWORD>> | base64 --wrap=0
+    admin_password: MUFuZmFuZyEK # 1Anfang! 
+ingress
+  virtual_host_fqdn: grafana.<your-domain>
+
+tanzu package install grafana \
+--package-name grafana.tanzu.vmware.com \
+--version <VERSION> \
+--values-file grafana-data-values.yaml
+tanzu package install grafana --package grafana.tanzu.vmware.com --version 7.5.16+vmware.1-tkg.1 --values-file ./grafana-data-values.yaml --namespace tanzu-system-dashboards

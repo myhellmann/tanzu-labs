@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kuard
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: kuard
+  name: kuard-service
+spec:
+  type: NodePort
+  selector:
+    run: kuard
+  ports:
+  - name: kuard-http
+    protocol: TCP
+    port: 8080
+    nodePort: 30123
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: kuard
+  labels:
+    run: kuard
+  name: kuard
+spec:
+  containers:
+  - image: gcr.io/kuar-demo/kuard-amd64:blue
+    name: kuard
+    ports:
+    - containerPort: 8080
+
