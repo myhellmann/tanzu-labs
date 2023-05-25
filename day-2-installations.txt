@@ -1,9 +1,9 @@
 # After Cluster creation first steps
-tanzu context create --kubeconfig /home/nightwave/.kube/config --kubecontext <context> --name <context> 
+tanzu context create --kubeconfig /home/$USER/.kube/config --kubecontext <context> --name <context> 
 
 ###  Create Default Storage Class ###
 # Voraussetzung für Prometheus Server, Alert Manager, Grafana, Harbor
-kubectl patch storageclass tanzu-workload-nfs3 -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}' 
+kubectl patch storageclass <STORAGE CLASS> -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}' 
 
 ### PSP installieren ###
 kubectl apply -f psp_security_policy_privileged.yaml
@@ -13,7 +13,7 @@ kubectl apply -f packagerepo.yaml
 tanzu package repository list -n tanzu-package-repo-global -n tkg-system
 
 ### AKO Ingress Controller ###
-kubectl create namespace avi-system --dry-run=client -o yaml > avi-system.yaml
+kubectl apply -f avi-system.yaml
 helm install ako/ako --generate-name --version 1.9.3 -f ako-values.yaml --set ControllerSettings.controllerHost=<AVI-CONTROLLER-IP> --set avicredentials.username=<USERNAME> --set avicredentials.password=<PASSWORD>> --namespace=avi-system
 
 

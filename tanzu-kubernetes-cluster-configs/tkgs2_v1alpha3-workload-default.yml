@@ -1,0 +1,22 @@
+apiVersion: run.tanzu.vmware.com/v1alpha3
+kind: TanzuKubernetesCluster
+metadata:
+  name: <CLUSERNAME>
+  namespace: <VSPHERE NAMESPACE>
+spec:
+  topology:
+    controlPlane:
+      replicas: <REPLICAS>
+      vmClass: <VM CLASS>
+      storageClass: <STORAGE CLASS>
+      tkr:
+        reference:
+          name: v1.24.9---vmware.1-tkg.4
+    nodePools:
+    - replicas: <REPLICAS>
+      name: <WORKPER POOL NAME>
+      vmClass: <VM CLASS>
+      storageClass: <STORAGE CLASS>
+  settings:
+    storage:
+      defaultClass: <STORAGE CLASS> 
