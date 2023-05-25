@@ -10,14 +10,14 @@ metadata:
   namespace: kuard
   name: kuard-service
 spec:
-  type: NodePort
+  type: ClusterIP
   selector:
     run: kuard
   ports:
   - name: kuard-http
     protocol: TCP
     port: 8080
-    nodePort: 30123
+    targetPort: http-web
 
 ---
 apiVersion: v1
@@ -33,4 +33,5 @@ spec:
     name: kuard
     ports:
     - containerPort: 8080
+      name: http-web
 
