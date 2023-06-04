@@ -1,3 +1,4 @@
+---
 apiVersion: run.tanzu.vmware.com/v1alpha3
 kind: TanzuKubernetesCluster
 metadata:
@@ -19,4 +20,9 @@ spec:
       storageClass: <STORAGE CLASS>
   settings:
     storage:
-      defaultClass: <STORAGE CLASS> 
+      defaultClass: <STORAGE CLASS>
+    network:
+      trust:
+        additionalTrustedCAs:
+          - name: <INTERNAL_CA_NAME>
+            data: <PEM_FILE_AS_BASE64_ENCRYPTED>
