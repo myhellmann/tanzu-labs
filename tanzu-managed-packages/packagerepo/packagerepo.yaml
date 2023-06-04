@@ -6,4 +6,5 @@ metadata:
 spec:
   fetch:
     imgpkgBundle:
-      image: deber-harbor-01.azubi.lab/tkg/packages/standard/repo:v2.2.0
+      # Default Registry: projects.registry.vmware.com/tkg/packages/standard/repo:v2.1.0
+      image: <PRIVATE_REGISTRY>/tkg/packages/standard/repo:v2.2.0
