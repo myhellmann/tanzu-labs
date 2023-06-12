@@ -1,0 +1,22 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: <ROLE-NAME>
+  namespace: <KUBERNETES-NAMESPACE>
+rules:
+- apiGroups:
+  - '*'
+  resources:
+  - 'pods'
+  - 'services'
+  - 'configmaps'
+  - 'deployments'
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
