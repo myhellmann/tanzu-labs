@@ -7,13 +7,13 @@ metadata:
 spec:
   clusterNetwork:
     services:
-      cidrBlocks: ["198.51.100.0/12"]
+      cidrBlocks: ["100.64.0.0/13"]
     pods:
-      cidrBlocks: ["192.0.2.0/16"]
+      cidrBlocks: ["100.96.0.0/11"]
     serviceDomain: "cluster.local"
   topology:
     class: tanzukubernetescluster
-    version: v1.24.9+vmware.1-tkg.4
+    version: v1.24.9+vmware.1-tkg.4  # TKr Version
     controlPlane:
       replicas: <REPLICAS>
     workers:
@@ -31,5 +31,5 @@ spec:
       - name: trust
         value:
           additionalTrustedCAs:
-          - name: <INTERNAL_CA_NAME> # Must match name in additional CA secret CLUSTER-NAME-user-trusted-ca-secret
+          - name: <INTERNAL_CA_NAME>  # ONLY when it differs from TkgServiceConfiguration resource, must match name in additional CA secret CLUSTER-NAME-user-trusted-ca-secret
 
