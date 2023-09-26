@@ -1,0 +1,13 @@
+apiVersion: crd.antrea.io/v1alpha2
+kind: Egress
+metadata:
+  name: egress-<DEPLOYMENTNAME>
+spec:
+  appliedTo:
+    namespaceSelector:
+      matchLabels:
+        kubernetes.io/metadata.name: <NAMESPACE> # This is where this egress configuration should beassigned to
+    podSelector:
+      matchLabels:
+        app: <DEPLOYMENT LABEL>
+  externalIPPool: external-ip-pool # References ExternalIPPool Ressource
