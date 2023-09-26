@@ -1,0 +1,10 @@
+apiVersion: crd.antrea.io/v1alpha2
+kind: ExternalIPPool
+metadata:
+  name: external-ip-pool
+spec:
+  ipRanges:
+  - start: <START IP ADDRESS>
+    end: <END IP ADDRESS>
+  - cidr: <SUBNET CIDR WHERE NODES LOCATED>
+  nodeSelector: {}
