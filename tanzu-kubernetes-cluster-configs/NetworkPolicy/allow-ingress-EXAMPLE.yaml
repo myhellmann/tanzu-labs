@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-all-<EXAMPLE>
+spec:
+  podSelector:
+    matchLabels:
+      <KEY>:<VALUE>
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - ipBlock:
+      cidr: <SUBNET/NETMASK>
+    - namespaceSelector:
+        matchLabels:
+          <KEY>:<VALUE>
+    - podSelector:
+        matchLabels:
+          <KEY>:<VALUE>
+    ports:
+    - protocol: <TCP/UDP>
+      port: <PORT>
